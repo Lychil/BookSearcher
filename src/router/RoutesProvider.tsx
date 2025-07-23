@@ -5,7 +5,8 @@ import {
     Route,
     RouterProvider
 } from "react-router-dom";
-import ProtectedRoutes from "./ProtectedRoutes";
+import ProtectedRoutes from "@/router/ProtectedRoutes";
+import Layout from "@/common/components/Layout/Layout";
 
 export default function RoutesProvider() {
     const isAuth = false;
@@ -13,9 +14,10 @@ export default function RoutesProvider() {
     const router = createBrowserRouter(
         createRoutesFromElements(
             <>
-                <Route path="/" element={<></>}>
+                <Route path="/" element={<Layout />}>
                     <Route index element={<Navigate to="/login" replace />} />
-                    <ProtectedRoutes isAllowed={isAuth}></ProtectedRoutes>
+                    <Route path="login" element={<></>} />
+                    <Route element={<ProtectedRoutes isAllowed={isAuth} />}></Route>
                 </Route>
             </>
         )
