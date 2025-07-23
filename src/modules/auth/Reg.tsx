@@ -1,17 +1,28 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import styles from '@/modules/auth/auth.module.css';
 
-export default function SignUp() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+type FormData = {
+    email: string;
+    password: string;
+    confirmPassword: string;
+};
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+export default function SignUp() {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm<FormData>();
+
+    const onSubmit = (data: FormData) => {
+        console.log(data);
     };
 
+    const password = watch('password');
+
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
             <h2>Создать аккаунт</h2>
 
             <div className={styles.inputGroup}>
@@ -19,10 +30,14 @@ export default function SignUp() {
                 <input
                     type="email"
                     id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    {...register('email', {
+                        required: 'Email обязателен',
+                        pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Некорректный email',
+                            
+                        },
+                    })}
                 />
+                {errors.email && <span className={styles.error}>{errors.email.message}</span>}
             </div>
 
             <div className={styles.inputGroup}>
@@ -30,10 +45,15 @@ export default function SignUp() {
                 <input
                     type="password"
                     id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    {...register('password', {
+                        required: 'Пароль обязателен',
+                        minLength: {
+                            value: 6,
+                            message: 'Пароль должен быть не менее 6 символов',
+                        },
+                    })}
                 />
+                {errors.password && <span className={styles.error}>{errors.password.message}</span>}
             </div>
 
             <div className={styles.inputGroup}>
@@ -41,10 +61,15 @@ export default function SignUp() {
                 <input
                     type="password"
                     id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
+                    {...register('confirmPassword', {
+                        required: 'Подтверждение пароля обязательно',
+                        validate: (value) =>
+                            value === password || 'Пароли не совпадают',
+                    })}
                 />
+                {errors.confirmPassword && (
+                    <span className={styles.error}>{errors.confirmPassword.message}</span>
+                )}
             </div>
 
             <button type="submit" className={styles.submitButton}>

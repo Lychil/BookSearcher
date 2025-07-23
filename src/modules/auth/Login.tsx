@@ -1,16 +1,24 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import styles from '@/modules/auth/auth.module.css';
 
-export default function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+type FormData = {
+    email: string;
+    password: string;
+};
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+export default function Login() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<FormData>();
+
+    const onSubmit = async (data: FormData) => {
+        console.log(data);
     };
 
     return (
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
             <h2>Вход в аккаунт</h2>
 
             <div className={styles.inputGroup}>
@@ -18,10 +26,17 @@ export default function Login() {
                 <input
                     type="email"
                     id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
+                    {...register('email', {
+                        required: 'Email обязателен',
+                        pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                            message: 'Введите корректный email',
+                        },
+                    })}
                 />
+                {errors.email && (
+                    <span className={styles.error}>{errors.email.message}</span>
+                )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -29,14 +44,25 @@ export default function Login() {
                 <input
                     type="password"
                     id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
+                    {...register('password', {
+                        required: 'Пароль обязателен',
+                        minLength: {
+                            value: 6,
+                            message: 'Пароль должен содержать минимум 6 символов',
+                        },
+                    })}
                 />
+                {errors.password && (
+                    <span className={styles.error}>{errors.password.message}</span>
+                )}
             </div>
 
-            <button type="submit" className={styles.submitButton}>
-                Войти
+            <button
+                type="submit"
+                className={styles.submitButton}
+                disabled={isSubmitting}
+            >
+                {isSubmitting ? 'Вход...' : 'Войти'}
             </button>
         </form>
     );
