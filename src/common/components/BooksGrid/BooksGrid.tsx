@@ -1,28 +1,21 @@
-import { useState } from 'react';
 import styles from '@/common/components/BooksGrid/BooksGrid.module.css';
-import { Book } from '@/common/types/books';
 import BookCard from '@/common/components/BookCard/BookCard';
-import { booksMock } from '@/common/mock/books';
+import { useBooks } from '@/hooks/useBooks';
+import { BookCardSkeleton } from '@/common/skeletons/BookCardSkeleton';
 
 export const BooksGrid = () => {
-    const [books, setBooks] = useState<Book[]>(booksMock);
+    const { data: books, isFetching, isError } = useBooks({ query: "Harry Poter" });
 
-    const [favorites, setFavorites] = useState<string[]>([]);
-
-    const toggleFavorite = (bookId: string) => {
-        setFavorites(prev => prev.includes(bookId) ? prev.filter(id => id !== bookId) : [...prev, bookId]);
-    };
+    if (isError) return <div>Ошибка загрузки</div>;
 
     return (
         <div className={styles.booksGrid}>
-            {books.map(book => (
-                <BookCard
-                    key={book.id}
-                    book={book}
-                    isFavorite={favorites.includes(book.id)}
-                    onToggleFavorite={toggleFavorite}
-                />
-            ))}
+            {
+                isFetching ?
+                    [...Array(10).keys()].map((key) => <BookCardSkeleton key={`skeleton-${key}`} />)
+                    :
+                    books.map(book => (<BookCard key={book.id} book={book} />))
+            }
         </div>
     );
 };
