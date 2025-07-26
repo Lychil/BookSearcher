@@ -3,12 +3,12 @@ import { BookCardData } from "@/common/types/books";
 import { useQuery } from "@tanstack/react-query";
 
 interface UseBooksProps {
-    query: string;
+    query: string | null;
 }
 
 export const useBooks = ({query}: UseBooksProps) => {
     return useQuery<BookCardData[]>({
-        queryKey: ['books'],
+        queryKey: ['books', query],
         queryFn: () => fetchBookData(query),
         initialData: []
     });
